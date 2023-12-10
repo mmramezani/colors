@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Color Display</title>
+    <title>Color Taps</title>
     <style>
         body {
             margin: 0;
@@ -16,6 +16,7 @@
     <script>
         const colors = ['blue', 'green', 'pink', 'black', 'white', 'red', 'yellow', 'purple'];
         let currentColor = '';
+        let clickTimer = null;
 
         function changeColor() {
             currentColor = colors[Math.floor(Math.random() * colors.length)];
@@ -27,9 +28,21 @@
             window.speechSynthesis.speak(speech);
         }
 
-        document.addEventListener('click', () => {
-            speakColor();
-        });
+        function handleTap() {
+            if (clickTimer == null) {
+                clickTimer = setTimeout(() => {
+                    changeColor();  // Single tap
+                    clickTimer = null;
+                }, 300);  // 300 ms delay to wait for possible double tap
+            } else {
+                clearTimeout(clickTimer);  // Clear timer for single tap
+                clickTimer = null;
+                speakColor();  // Double tap
+            }
+        }
+
+        document.addEventListener('touchend', handleTap); // For touch devices
+        document.addEventListener('click', handleTap);    // For non-touch devices
 
         // Change color on load
         changeColor();
